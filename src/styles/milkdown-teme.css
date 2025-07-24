@@ -1,0 +1,38 @@
+/* milkdown-theme.css */
+.milkdown {
+  /* Background Colors */
+  --crepe-color-background: oklch(20.84% 0.008 17.911);       /* bg-base-200 */
+  --crepe-color-surface: oklch(16.203% 0.007 17.911);          /* bg-base-100 */
+  --crepe-color-surface-low: #100c0e;      /* bg-base-300 */
+
+  /* Text Colors */
+  --crepe-color-on-background: #cac9ca;    /* text-base-content */
+  --crepe-color-on-surface: #cac9ca;       /* same as above */
+  --crepe-color-on-surface-variant: #ffffff; /* neutral */
+
+  /* Accent Colors */
+  --crepe-color-primary: #1fb854;          /* primary */
+  --crepe-color-secondary: #1eb88e;        /* secondary */
+  --crepe-color-on-secondary: #cac9ca;     /* secondary-content */
+
+  /* UI Colors */
+  --crepe-color-outline: #cac9ca;          /* border-base-300 */
+  --crepe-color-inverse: #cac9ca;          /* inverse surface */
+  --crepe-color-on-inverse: #f3f4f6;       /* text on dark */
+  --crepe-color-inline-code: oklch(84.71% 0.199 83.87);      /* warning/danger */
+  --crepe-color-error: oklch(71.76% 0.221 22.18);            /* error */
+
+  /* Interactive Colors */
+  --crepe-color-hover: oklch(18.522% 0.007 17.911);            /* hover state */
+  --crepe-color-selected: oklch(18.522% 0.007 17.911);         /* selected bg */
+  --crepe-color-inline-area: #e5e7eb;      /* editing bg */
+
+  /* Fonts */
+  --crepe-font-default: 'Open Sans', sans-serif;
+  --crepe-font-title: 'Open Sans', sans-serif;
+  --crepe-font-code: 'Fira Code', Menlo, Monaco, monospace;
+
+  /* Shadows (optional) */
+  --crepe-shadow-1: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --crepe-shadow-2: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
