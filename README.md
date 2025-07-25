@@ -33,10 +33,13 @@ Verbas AI vuole essere:
 Ogni progetto Verbas segue una struttura chiara e organizzata:
 
 ```
-📁 nome-progetto/
-├── base.md               # Documento principale in Markdown
-├── project.verbas        # File di configurazione (JSON sotto il cofano)
-└── chapters/             # (opzionale) Capitoli o contenuti suddivisi
+📁 nome-progetto/         # Cartella root del progetto
+├── project.verbas         # File di configurazione .verbas (JSON sotto il cofano)
+├── export/
+├── fonts/
+├── images/
+├── style/       
+└── chapters/             
     ├── intro.md
     ├── capitolo-1.md
     └── ...
