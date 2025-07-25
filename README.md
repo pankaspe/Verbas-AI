@@ -1,9 +1,8 @@
-
 # Verbas AI
 
 ![Verbas Logo](image.png)
 
-**Verbas AI** è un editor Markdown avanzato per la scrittura di **libri, guide, articoli o appunti**, progettato per offrire un'esperienza **moderna**, **reattiva** e **performante**.  
+**Verbas AI** è un editor Markdown avanzato per la scrittura di **libri**, **guide**, **articoli** o **appunti**, progettato per offrire un'esperienza **moderna**, **reattiva** e **performante**.  
 È sviluppato in **Rust** e **SolidJS**, con focus su velocità, chiarezza strutturale e architettura scalabile.
 
 ---
@@ -12,9 +11,9 @@
 
 Mi chiamo **Andrea**, sviluppatore Rust e SolidJS.  
 **Verbas AI** nasce come una **challenge personale**: creare un'app desktop elegante, utile e ben progettata, interamente da solo, nel tempo libero.  
-È un **esercizio tecnico** e creativo che, con il tempo, sta assumendo la forma di un vero editor da scrittura professionale.
+È un **esercizio tecnico e creativo** che sta evolvendo in un editor solido e funzionale per la scrittura professionale.
 
-Il codice è pubblico e aperto: ogni feedback, idea o collaborazione futura è benvenuta.
+Il codice è open source e aperto a idee, feedback o future collaborazioni.
 
 ---
 
@@ -22,10 +21,28 @@ Il codice è pubblico e aperto: ogni feedback, idea o collaborazione futura è b
 
 Verbas AI vuole essere:
 
-- ✍️ Un **editor fluido e potente**, perfetto per scrivere contenuti lunghi e strutturati
-- 📄 Capace di esportare in formati come **Markdown**, **PDF** e **ePub**
-- ⚙️ Supportato da un'architettura pulita, modulare e facilmente estendibile
-- 🧩 Progettato per **integrare plugin**, modalità lettura, temi personalizzati, AI
+- ✍️ Un **editor fluido e potente**, ideale per contenuti lunghi e strutturati  
+- 📄 Capace di esportare in **Markdown**, **PDF** e **ePub**  
+- 🧱 Basato su un’**architettura modulare**, facilmente estensibile  
+- 🧩 Progettato per supportare **plugin**, **temi**, modalità di lettura e **AI assistita**  
+
+---
+
+## 🗂️ Struttura dei progetti `.verbas`
+
+Ogni progetto Verbas segue una struttura chiara e organizzata:
+
+```
+📁 nome-progetto/
+├── base.md               # Documento principale in Markdown
+├── project.verbas        # File di configurazione (JSON sotto il cofano)
+└── chapters/             # (opzionale) Capitoli o contenuti suddivisi
+    ├── intro.md
+    ├── capitolo-1.md
+    └── ...
+```
+
+> Il file `.verbas` contiene metadati, impostazioni e configurazioni del progetto.
 
 ---
 
@@ -43,63 +60,57 @@ Verbas AI vuole essere:
 | Comunicazione backend Rust ↔ frontend JS    | ✅    |
 | Riconoscimento editor pronto all’uso        | ✅    |
 
-📁 **.verbas** è l'estensione personalizzata usata per rappresentare ogni progetto:  
-sotto il cofano è un semplice file JSON, leggibile e modificabile.
+🗃️ È in fase di sviluppo anche il **supporto per esportazione in PDF e ePub**.
 
 ---
 
 ## 🛠️ Stack Tecnologico
 
-| Tecnologia    | Ruolo                       | Perché è stata scelta                          |
-|---------------|------------------------------|------------------------------------------------|
-| 🦀 **Rust**    | Backend nativo (via Tauri)   | Sicuro, velocissimo, senza garbage collector   |
-| 🧱 **Tauri**   | Framework desktop            | Leggero, sicuro, perfetto per app Rust+JS      |
-| ⚛️ **SolidJS** | Frontend reactive            | Rapidissimo, reattività fine-grained, snello   |
-| 🧪 **Milkdown**| Editor Markdown WYSIWYG      | Modulare, moderno, output Markdown diretto     |
-| 🎨 **Tailwind + DaisyUI** | Stile UI        | Componenti veloci, design pulito e flessibile  |
-| ⚡ **Vite**    | Build system                 | Dev server istantaneo, ottimo con SolidJS      |
+| Tecnologia               | Ruolo                       | Motivazioni tecniche                            |
+|--------------------------|------------------------------|--------------------------------------------------|
+| 🦀 **Rust**              | Backend nativo (via Tauri)   | Sicuro, velocissimo, senza garbage collector     |
+| 🧱 **Tauri**             | Framework desktop            | Leggero, sicuro, perfetto per app Rust+JS        |
+| ⚛️ **SolidJS**          | Frontend reactive            | Reattività ultra-performante, architettura pulita|
+| 🧪 **Milkdown**          | Editor Markdown WYSIWYG      | Output Markdown nativo, plugin-friendly          |
+| 🎨 **Tailwind + DaisyUI**| Stile UI                     | Stile elegante, rapido da personalizzare         |
+| ⚡ **Vite**              | Build system                 | Dev server istantaneo, perfetto per SolidJS      |
 
 ---
 
 ### 🔧 Perché Rust?
 
-- ✅ **Velocità nativa**: compilato in codice macchina
-- ✅ **Sicurezza**: il borrow checker previene errori comuni
-- ✅ **Zero runtime**: nessun garbage collector
-- ✅ **Perfetto per CLI, parsing, gestione file e strutture dati complesse**
-  
-Rust è l’ideale per il backend di un'app desktop: solido, affidabile e potente.
+- 🏎️ **Velocità nativa** (compilato in codice macchina)  
+- 🧱 **Memory safety** senza garbage collector  
+- 🧮 **Strutture dati e parsing complessi** ben gestibili  
+- 🧼 **Pulizia e robustezza architetturale**
+
+Rust è perfetto per desktop apps, parsing, e manipolazione file affidabile e performante.
 
 ---
 
 ### ⚛️ Perché SolidJS?
 
-- ⚡ **Reattività istantanea**: il sistema di segnali (`createSignal`, `createStore`) è ultra-performante
-- 🧠 **Semplice ma potente**: JSX diretto, simile a React ma senza overhead
-- 📦 **Perfetta integrazione con Vite e Tauri**
-- 💡 Ottimo per app complesse ma fluide
+- ⚡ **Reattività istantanea** con segnali (`createSignal`, `createStore`)  
+- 🔍 **Controllo fine su DOM e stato**  
+- 🧠 **Più semplice e veloce di React**, ma altrettanto espressivo  
+- 📦 Perfetta integrazione con Vite, Tauri e Tailwind  
 
 ---
 
-## 🧠 Dettaglio Funzioni tecniche
+## 🧠 Dettaglio tecnico: Store e backend
 
 ### 🗂️ Store SolidJS
 
-Due store principali:
-
 #### `projectStore.ts`
-Gestisce il progetto `.verbas` e il relativo file `base.md`.
 
 ```ts
 export const project = reactive<Project>({
   path: '',
   config: null,
 });
-````
+```
 
 #### `editorStore.ts`
-
-Mantiene l'istanza Milkdown e gestisce lettura contenuto:
 
 ```ts
 const [editorInstance, setEditorInstance] = createSignal<Crepe | null>(null);
@@ -120,7 +131,7 @@ export async function getMarkdown(): Promise<string | null> {
 
 ---
 
-### 🦀 Funzioni backend in Rust
+### 🦀 Backend in Rust (comandi Tauri)
 
 #### Caricamento Markdown
 
@@ -142,7 +153,7 @@ pub fn save_markdown_file(path: String, content: String) -> Result<(), String> {
 }
 ```
 
-#### Salvataggio progetto `.verbas`
+#### Salvataggio file `.verbas`
 
 ```rust
 #[command]
@@ -155,29 +166,29 @@ pub fn save_project(path: String, config: ProjectConfig) -> Result<(), String> {
 
 ---
 
-## 📅 Roadmap
+## 🗺️ Roadmap
 
-* [x] Setup progetto Rust + Tauri + SolidJS
-* [x] Caricamento e parsing file `.verbas`
-* [x] Rendering editor Markdown (Milkdown)
-* [x] Salvataggio contenuti e configurazione
-* [x] Architettura store pulita (Solid)
-* [ ] UI base (sidebar, icone, teming)
-* [ ] Tema dark/light
-* [ ] Modalità lettura / “papiro mode”
-* [ ] Sistema plugin/moduli
-* [ ] Esportazione PDF / ePub
+* [x] Setup progetto (Rust + Tauri + SolidJS)  
+* [x] Supporto file `.verbas` (carica, salva, clona)  
+* [x] Editor Milkdown integrato  
+* [x] Gestione contenuti e struttura base  
+* [ ] UI migliorata (sidebar, icone, theming)  
+* [ ] Modalità lettura / “papiro mode”  
+* [ ] Tema dark/light  
+* [ ] Esportazione PDF / ePub  
+* [ ] Supporto plugin e moduli  
+* [ ] Modalità AI assistita  
 
 ---
 
 ## 📬 Contatti
 
-Se vuoi seguire il progetto, contribuire o semplicemente scambiare idee:
+Se vuoi seguire lo sviluppo, contribuire o anche solo dire "ciao":
 
-* 🌐 [github.com/tuo-username](https://github.com/tuo-username)
-* 🐦 Twitter/X: *(aggiungi se vuoi)*
+* 🌐 [github.com/tuo-username](https://github.com/tuo-username)  
+* 🐦 Twitter/X: *(aggiungi se vuoi)*  
 * 📬 Apri una issue o una PR su GitHub!
 
 ---
 
-> *“Verbas” deriva da **Verba** (parole), con una **R** e una **S** nel mezzo che è l'estensione dei file di rust(.rs)*
+> _“Verbas” deriva da **Verba** (parole), con una **R** e una **S** al centro: la mia piccola firma al mondo della scrittura digitale e del codice._
