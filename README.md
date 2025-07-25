@@ -10,61 +10,110 @@
 
 ## 🚧 Stato del progetto
 
-Attualmente è in sviluppo attivo, **solo la UI è in fase di costruzione**. Il backend e le funzionalità sono pianificate, ma non ancora implementate.
+Attualmente è in sviluppo attivo. Le seguenti funzionalità sono già state implementate:
 
 ---
 
-## 🎯 Obiettivo
+## ✨ Funzionalità implementate
 
-Creare un editor minimalista, ispirato alla solidità degli strumenti antichi ma potenziato dalle tecnologie moderne, con particolare attenzione a:
-
-- **Performance real-time**  
-- **Semplicità estetica**  
-- **Espandibilità futura**
+| Funzione                                | Stato |
+|-----------------------------------------|--------|
+| UI moderna e responsiva (SolidJS)       | ✅     |
+| Caricamento progetto da file .verbas    | ✅     |
+| Parsing e pulizia frontmatter Markdown  | ✅     |
+| Rendering editor Markdown (Milkdown)    | ✅     |
+| Salvataggio file `base.md`              | ✅     |
+| Salvataggio configurazione progetto     | ✅     |
+| Riconoscimento editor pronto            | ✅     |
+| Persistenza tra backend (Rust) e frontend (JS) | ✅ |
 
 ---
 
-## ✨ Funzionalità previste
+## 🧠 Dettaglio Funzionalità Tecniche
 
-✅ = fatte • 🔜 = in sviluppo • ⏳ = previste  
+### 🗂️ Store SolidJS
 
-| Funzione                                | Stato   |
-|-----------------------------------------|---------|
-| UI moderna e responsiva (SolidJS)       | 🔜      |
-| Rendering di testo ad alte prestazioni  | ⏳      |
-| Tema scuro/chiaro personalizzabile      | ⏳      |
-| Supporto Markdown                       | ⏳      |
-| Evidenziazione sintattica (Monaco?)     | ⏳      |
-| Salvataggio automatico                  | ⏳      |
-| Storico versioni locali                 | ⏳      |
-| Motore di ricerca testuale veloce       | ⏳      |
-| Modalità distrazione-free               | ⏳      |
-| Supporto a shortcut personalizzabili    | ⏳      |
-| Supporto ai plugin/moduli               | ⏳      |
-| Modalità “papiro” (estetica alternativa)| ⏳      |
-| Export in vari formati (PDF, .txt)      | ⏳      |
-| Backup automatici e locali              | ⏳      |
+- `projectStore.ts`  
+  Store reattivo per il progetto corrente:
+  ```ts
+  export const project = reactive<Project>({
+    path: '',
+    config: null,
+  });
+  ```
+
+- `editorStore.ts`  
+  Gestisce lo stato dell'editor Markdown:
+  ```ts
+  const [editorInstance, setEditorInstance] = createSignal<Crepe | null>(null);
+  const [isEditorReady, setIsEditorReady] = createSignal(false);
+
+  export async function getMarkdown(): Promise<string | null> {
+    const editor = editorInstance();
+    if (!editor || !isEditorReady()) return null;
+    try {
+      // @ts-ignore
+      return await editor.editor.action(ctx => ctx.get("doc"));
+    } catch (e) {
+      console.error("Errore leggendo dal context:", e);
+      return null;
+    }
+  }
+  ```
+
+### ⚙️ Funzioni Rust (comandi Tauri)
+
+- `load_markdown_file(path: String) -> Result<String, String>`
+  ```rust
+  #[command]
+  pub fn load_markdown_file(path: String) -> Result<String, String> {
+      std::fs::read_to_string(path).map_err(|e| e.to_string())
+  }
+  ```
+
+- `save_markdown_file(path: String, content: String) -> Result<(), String>`
+  ```rust
+  #[command]
+  pub fn save_markdown_file(path: String, content: String) -> Result<(), String> {
+      let mut file = File::create(&path).map_err(|e| format!("Failed to create file: {}", e))?;
+      file.write_all(content.as_bytes()).map_err(|e| format!("Failed to write file: {}", e))?;
+      Ok(())
+  }
+  ```
+
+- `save_project(path: String, config: ProjectConfig) -> Result<(), String>`
+  ```rust
+  #[command]
+  pub fn save_project(path: String, config: ProjectConfig) -> Result<(), String> {
+      let json = serde_json::to_string_pretty(&config).map_err(|e| format!("Serialization error: {}", e))?;
+      let mut file = File::create(&path).map_err(|e| format!("Failed to create file: {}", e))?;
+      file.write_all(json.as_bytes()).map_err(|e| format!("Write error: {}", e))
+  }
+  ```
 
 ---
 
 ## 🛠️ Tech stack
 
-- **🦀 Rust** – per il core backend con performance native  
+- **🦀 Rust** – core backend con performance native  
 - **🧱 Tauri** – per creare l'app desktop  
-- **⚛️ SolidJS** – per la UI: reattiva, veloce, modulare  
-- **🎨 TailwindCSS** – per lo stile minimal ma elegante  
-- **📦 Vite** – per il build system rapido
+- **⚛️ SolidJS** – UI reattiva, veloce, modulare  
+- **🧪 Milkdown** – editor Markdown moderno con AST  
+- **🎨 TailwindCSS** – stile minimal ma elegante  
+- **📦 Vite** – build system super veloce
 
 ---
 
 ## 📅 Roadmap
 
 - [x] Setup iniziale (Tauri + SolidJS)
-- [ ] UI base (editor + sidebar)
-- [ ] Tema e struttura layout
-- [ ] Integrazione editor testuale
-- [ ] Persistenza su file system
-- [ ] Primo rilascio beta
+- [x] Caricamento progetto e file `base.md`
+- [x] Salvataggio Markdown e Config via Rust
+- [x] Gestione stato editor con signal SolidJS
+- [ ] UI base (sidebar, icone, navigazione)
+- [ ] Tema dark/light
+- [ ] Plugin system e modularità
+- [ ] Modalità lettura/papiro
 
 ---
 
