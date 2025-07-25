@@ -1,11 +1,14 @@
 import { createSignal, onMount, onCleanup } from "solid-js";
 import { getCurrentWindow } from "@tauri-apps/api/window";
+import { invoke } from '@tauri-apps/api/core';
+import { open, save } from '@tauri-apps/plugin-dialog';
+import { dirname, join } from "@tauri-apps/api/path";
 
-// DropdownMenu component for the top navbar
-function DropdownMenu(props: {
-  label: string;
-  children: any;
-}) {
+import { project, setProject, ProjectConfig } from '../stores/projectStore'; 
+import { loadAndCleanBaseChapter } from "../utils/loadCurrentHelper";
+import { getMarkdown, isEditorReady } from "../stores/editorStore";
+
+function DropdownMenu(props: { label: string; children: any }) {
   return (
     <div class="dropdown">
       <div tabindex="0" role="button" class="btn btn-ghost btn-sm">
@@ -21,31 +24,20 @@ function DropdownMenu(props: {
   );
 }
 
-// TitleBar component for the Tauri window
 export function TitleBar() {
   const [isMaximized, setIsMaximized] = createSignal(false);
   let window: Awaited<ReturnType<typeof getCurrentWindow>>;
 
   onMount(async () => {
     window = await getCurrentWindow();
-
-    // Set initial maximized state
     setIsMaximized(await window.isMaximized());
 
-    // Listen to maximize/unmaximize events
-    const unlistenMax = await window.listen("tauri://maximize", () =>
-      setIsMaximized(true)
-    );
-    const unlistenUnmax = await window.listen("tauri://unmaximize", () =>
-      setIsMaximized(false)
-    );
-
-    // Listen to resize events (e.g., double-click on title bar)
+    const unlistenMax = await window.listen("tauri://maximize", () => setIsMaximized(true));
+    const unlistenUnmax = await window.listen("tauri://unmaximize", () => setIsMaximized(false));
     const unlistenResize = await window.listen("tauri://resize", async () => {
       setIsMaximized(await window.isMaximized());
     });
 
-    // Cleanup event listeners when the component unmounts
     onCleanup(() => {
       unlistenMax();
       unlistenUnmax();
@@ -53,12 +45,7 @@ export function TitleBar() {
     });
   });
 
-  // Minimize window
-  const minimize = async () => {
-    await window.minimize();
-  };
-
-  // Toggle maximize/unmaximize window
+  const minimize = async () => await window.minimize();
   const toggleMaximize = async () => {
     if (isMaximized()) {
       await window.unmaximize();
@@ -68,26 +55,118 @@ export function TitleBar() {
       setIsMaximized(true);
     }
   };
+  const closeWindow = async () => await window.close();
 
-  // Close window
-  const closeWindow = async () => {
-    await window.close();
+  const handleNewProject = async () => {
+    const folderPath = await save({
+      title: "Crea nuovo progetto",
+      defaultPath: "NuovoProgetto",
+      filters: [],
+    });
+    if (!folderPath) return;
+
+    const projectName = folderPath.split(/[\\/]/).pop()?.replace(/\.verbas$/, "") || "Progetto";
+
+    // 1. Crea struttura progetto + base.md dal backend
+    await invoke("create_new_project", {
+      name: projectName,
+      directory: folderPath.replace(/\\\\/g, "/"),
+    });
+
+    // 2. Carica il progetto appena creato
+    const projectPath = `${folderPath}/${projectName}.verbas`;
+    const newConfig = await invoke<ProjectConfig>("load_project", {
+      path: projectPath,
+    });
+
+    setProject({ config: newConfig, path: projectPath });
+
+    // ✅ 3. Carica base.md nell’editor
+    await loadAndCleanBaseChapter();
+
+    console.log("Nuovo progetto creato, base.md caricato.");
+  };
+
+  const handleOpenProject = async () => {
+    const selected = await open({ multiple: false, filters: [{ name: "Verbas Project", extensions: ["verbas"] }] });
+    if (selected && typeof selected === 'string') {
+      const config = await invoke<ProjectConfig>("load_project", { path: selected });
+      setProject({ config, path: selected });
+
+      // ✅ Dopo aver caricato il progetto, carica base.md
+      await loadAndCleanBaseChapter();
+
+      console.log("Loaded project:", config);
+    }
+  };
+
+  const handleSave = async () => {
+  if (!project.path || !project.config) {
+    console.warn("No project loaded.");
+    return;
+  }
+
+  try {
+    const markdownContent = await getMarkdown();
+    console.log("Contenuto Markdown da salvare:", markdownContent);
+
+    if (!markdownContent) {
+      console.warn("Contenuto markdown vuoto o editor non pronto.");
+      return;
+    }
+
+    const baseDir = await dirname(project.path);
+    const chaptersDir = await join(baseDir, project.config.structure.chapters_path);
+    const baseMdPath = await join(chaptersDir, "base.md");
+
+    await invoke("save_markdown_file", { path: baseMdPath, content: markdownContent });
+
+    await invoke("save_project", {
+      path: project.path,
+      config: project.config,
+    });
+
+    console.log("Progetto e base.md salvati.");
+  } catch (error) {
+    console.error("Errore nel salvataggio progetto o base.md:", error);
+  }
+};
+
+  const handleSaveAs = async () => {
+    if (!project.config) return;
+
+    const newPath = await save({
+      title: "Salva progetto come...",
+      defaultPath: `${project.config.name}.verbas`,
+      filters: [{ name: "Verbas Project", extensions: ["verbas"] }],
+    });
+    if (!newPath) return;
+
+    try {
+      await invoke("save_project_as", {
+        newPath,
+        config: project.config,
+      });
+      setProject({ config: project.config, path: newPath });
+      console.log("Progetto salvato come:", newPath);
+    } catch (error) {
+      console.error("Errore nel save as:", error);
+    }
   };
 
   return (
     <div class="navbar bg-base-300" style="-webkit-app-region: drag; min-height: 0rem;">
-      {/* Left section: Dropdown menus */}
       <div class="navbar-start">
         <DropdownMenu label="File">
-          <li><a>New document</a></li>
+          <li><a onClick={handleNewProject}>Create new project</a></li>
           <hr class="border-t-1 border-base-100 my-2" />
-          <li><a>Open document</a></li>
-          <li><a>Open recent</a></li>
+          <li><a onClick={handleOpenProject}>Open project</a></li>
+          <li><a>Recent project</a></li>
           <hr class="border-t-1 border-base-100 my-2" />
-          <li><a>Save</a></li>
-          <li><a>Save as</a></li>
+          <li><button onClick={handleSave} disabled={!isEditorReady()}>Save project</button></li>
+          <li><a onClick={handleSaveAs}>Save project as...</a></li>
           <hr class="border-t-1 border-base-100 my-2" />
-          <li><a>Exit</a></li>
+          <li><a onClick={closeWindow}>Exit</a></li>
         </DropdownMenu>
 
         <DropdownMenu label="Edit">
@@ -119,20 +198,17 @@ export function TitleBar() {
         </DropdownMenu>
       </div>
 
-      {/* Center section: Logo */}
       <div class="navbar-center">
         <div class="font-bold text-lg">
           Ve<span class="text-secondary">r</span>ba<span class="text-secondary">s</span>
         </div>
       </div>
 
-
-      {/* Right section: Window controls */}
       <div class="navbar-end">
         <div style="-webkit-app-region: no-drag; user-select: none;">
           <button class="btn btn-ghost btn-xs" onClick={minimize}>–</button>
           <button class="btn btn-ghost btn-xs" onClick={toggleMaximize}>
-            {isMaximized() ? "🗗" /* Restore */ : "☐" /* Maximize */}
+            {isMaximized() ? "🗗" : "☐"}
           </button>
           <button class="btn btn-ghost btn-xs btn-error" onClick={closeWindow}>✕</button>
         </div>
