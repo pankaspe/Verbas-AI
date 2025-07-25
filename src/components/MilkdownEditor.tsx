@@ -1,3 +1,4 @@
+// components/MilkdownEditor.tsx
 import { onCleanup, createEffect } from "solid-js";
 import { Crepe } from "@milkdown/crepe";
 import { setEditorInstance, setIsEditorReady } from "../stores/editorStore";

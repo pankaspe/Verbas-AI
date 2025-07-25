@@ -12,7 +12,7 @@ pub fn run() {
             functions::create_new_project,
             functions::save_project,
             functions::load_project,
-            functions::save_project_as,
+            functions::clone_project,
             functions::delete_project,
             
             // load markdown functions

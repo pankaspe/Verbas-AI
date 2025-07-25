@@ -8,6 +8,7 @@ import { project, setProject, ProjectConfig } from '../stores/projectStore';
 import { loadAndCleanBaseChapter } from "../utils/loadCurrentHelper";
 import { getMarkdown, isEditorReady } from "../stores/editorStore";
 
+// DropdownMenu component for reusable dropdown menus with label and children
 function DropdownMenu(props: { label: string; children: any }) {
   return (
     <div class="dropdown">
@@ -25,19 +26,23 @@ function DropdownMenu(props: { label: string; children: any }) {
 }
 
 export function TitleBar() {
+  // Track whether the window is maximized
   const [isMaximized, setIsMaximized] = createSignal(false);
   let window: Awaited<ReturnType<typeof getCurrentWindow>>;
 
+  // Initialize window object and setup event listeners on mount
   onMount(async () => {
     window = await getCurrentWindow();
     setIsMaximized(await window.isMaximized());
 
+    // Listen to window maximize, unmaximize, and resize events
     const unlistenMax = await window.listen("tauri://maximize", () => setIsMaximized(true));
     const unlistenUnmax = await window.listen("tauri://unmaximize", () => setIsMaximized(false));
     const unlistenResize = await window.listen("tauri://resize", async () => {
       setIsMaximized(await window.isMaximized());
     });
 
+    // Cleanup listeners on unmount
     onCleanup(() => {
       unlistenMax();
       unlistenUnmax();
@@ -45,6 +50,7 @@ export function TitleBar() {
     });
   });
 
+  // Window control functions
   const minimize = async () => await window.minimize();
   const toggleMaximize = async () => {
     if (isMaximized()) {
@@ -57,116 +63,155 @@ export function TitleBar() {
   };
   const closeWindow = async () => await window.close();
 
+  // Handler to create a new project
   const handleNewProject = async () => {
+    // Show save dialog to select new project folder
     const folderPath = await save({
-      title: "Crea nuovo progetto",
-      defaultPath: "NuovoProgetto",
+      title: "Create new project",
+      defaultPath: "NewProject",
       filters: [],
     });
     if (!folderPath) return;
 
-    const projectName = folderPath.split(/[\\/]/).pop()?.replace(/\.verbas$/, "") || "Progetto";
+    // Extract project name from folder path (remove .verbas if present)
+    const projectName = folderPath.split(/[\\/]/).pop()?.replace(/\.verbas$/, "") || "Project";
 
-    // 1. Crea struttura progetto + base.md dal backend
+    // 1. Call backend to create project structure and base.md
     await invoke("create_new_project", {
       name: projectName,
       directory: folderPath.replace(/\\\\/g, "/"),
     });
 
-    // 2. Carica il progetto appena creato
+    // 2. Load newly created project config
     const projectPath = `${folderPath}/${projectName}.verbas`;
     const newConfig = await invoke<ProjectConfig>("load_project", {
       path: projectPath,
     });
 
+    // Update project store with new project data
     setProject({ config: newConfig, path: projectPath });
 
-    // ✅ 3. Carica base.md nell’editor
+    // 3. Load base.md chapter into editor
     await loadAndCleanBaseChapter();
 
-    console.log("Nuovo progetto creato, base.md caricato.");
+    console.log("New project created and base.md loaded.");
   };
 
+  // Handler to open an existing project
   const handleOpenProject = async () => {
+    // Open dialog to select a .verbas project file
     const selected = await open({ multiple: false, filters: [{ name: "Verbas Project", extensions: ["verbas"] }] });
     if (selected && typeof selected === 'string') {
       const config = await invoke<ProjectConfig>("load_project", { path: selected });
       setProject({ config, path: selected });
 
-      // ✅ Dopo aver caricato il progetto, carica base.md
+      // After loading project config, load base.md chapter
       await loadAndCleanBaseChapter();
 
       console.log("Loaded project:", config);
     }
   };
 
+  // Handler to save current project and base.md file
   const handleSave = async () => {
-  if (!project.path || !project.config) {
-    console.warn("No project loaded.");
-    return;
-  }
-
-  try {
-    const markdownContent = await getMarkdown();
-    console.log("Contenuto Markdown da salvare:", markdownContent);
-
-    if (!markdownContent) {
-      console.warn("Contenuto markdown vuoto o editor non pronto.");
+    if (!project.path || !project.config) {
+      console.warn("No project loaded.");
       return;
     }
 
-    const baseDir = await dirname(project.path);
-    const chaptersDir = await join(baseDir, project.config.structure.chapters_path);
-    const baseMdPath = await join(chaptersDir, "base.md");
-
-    await invoke("save_markdown_file", { path: baseMdPath, content: markdownContent });
-
-    await invoke("save_project", {
-      path: project.path,
-      config: project.config,
-    });
-
-    console.log("Progetto e base.md salvati.");
-  } catch (error) {
-    console.error("Errore nel salvataggio progetto o base.md:", error);
-  }
-};
-
-  const handleSaveAs = async () => {
-    if (!project.config) return;
-
-    const newPath = await save({
-      title: "Salva progetto come...",
-      defaultPath: `${project.config.name}.verbas`,
-      filters: [{ name: "Verbas Project", extensions: ["verbas"] }],
-    });
-    if (!newPath) return;
-
     try {
-      await invoke("save_project_as", {
-        newPath,
+      // Get markdown content from editor
+      const markdownContent = await getMarkdown();
+      console.log("Markdown content to save:", markdownContent);
+
+      if (!markdownContent) {
+        console.warn("Markdown content is empty or editor not ready.");
+        return;
+      }
+
+      // Construct path to base.md inside chapters folder
+      const baseDir = await dirname(project.path);
+      const chaptersDir = await join(baseDir, project.config.structure.chapters_path);
+      const baseMdPath = await join(chaptersDir, "base.md");
+
+      // Save markdown content to base.md file via backend
+      await invoke("save_markdown_file", { path: baseMdPath, content: markdownContent });
+
+      // Save project configuration file
+      await invoke("save_project", {
+        path: project.path,
         config: project.config,
       });
-      setProject({ config: project.config, path: newPath });
-      console.log("Progetto salvato come:", newPath);
+
+      console.log("Project and base.md saved.");
     } catch (error) {
-      console.error("Errore nel save as:", error);
+      console.error("Error saving project or base.md:", error);
     }
   };
 
+  // Handler to clone the current project to a new folder
+  async function handleClone() {
+    // Open dialog to select target folder for cloning
+    const targetDir = await open({
+      title: "Select destination folder",
+      directory: true,
+    });
+
+    if (!targetDir || typeof targetDir !== "string") return;
+
+    try {
+      // Call Rust backend to clone the project directory
+      const newPath = await invoke<string>("clone_project", {
+        originalPath: project.path,
+        newFolderPath: targetDir,
+      });
+
+      // Verify returned path is valid string
+      if (!newPath || typeof newPath !== "string") {
+        throw new Error("clone_project did not return a valid path");
+      }
+
+      // Load configuration from cloned project
+      const newConfig = await invoke<ProjectConfig>("load_project", {
+        path: newPath,
+      });
+
+      // Update project store with cloned project data
+      setProject({ path: newPath, config: newConfig });
+
+      // Load base.md chapter for new project
+      await loadAndCleanBaseChapter();
+
+      console.log("Project cloned and loaded from:", newPath);
+    } catch (e) {
+      console.error("Error in Save As:", e);
+    }
+  }
+
+  // JSX layout for title bar with dropdown menus and window controls
   return (
     <div class="navbar bg-base-300" style="-webkit-app-region: drag; min-height: 0rem;">
       <div class="navbar-start">
         <DropdownMenu label="File">
-          <li><a onClick={handleNewProject}>Create new project</a></li>
+          <li>
+            <a onClick={handleNewProject}>Create new project</a>
+          </li>
           <hr class="border-t-1 border-base-100 my-2" />
-          <li><a onClick={handleOpenProject}>Open project</a></li>
+          <li>
+            <a onClick={handleOpenProject}>Open project</a>
+          </li>
           <li><a>Recent project</a></li>
           <hr class="border-t-1 border-base-100 my-2" />
-          <li><button onClick={handleSave} disabled={!isEditorReady()}>Save project</button></li>
-          <li><a onClick={handleSaveAs}>Save project as...</a></li>
+          <li>
+            <button onClick={handleSave} disabled={!isEditorReady()}>Save</button>
+          </li>
+          <li>
+            <a onClick={handleClone}>Clone project in...</a>
+          </li>
           <hr class="border-t-1 border-base-100 my-2" />
-          <li><a onClick={closeWindow}>Exit</a></li>
+          <li>
+            <a onClick={closeWindow}>Exit</a>
+          </li>
         </DropdownMenu>
 
         <DropdownMenu label="Edit">

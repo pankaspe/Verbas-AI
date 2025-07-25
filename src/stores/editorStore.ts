@@ -1,3 +1,4 @@
+// stores/editorStore.ts
 import { createSignal } from "solid-js";
 import type { Crepe } from "@milkdown/crepe";
 
@@ -23,7 +24,6 @@ export async function getMarkdown(): Promise<string | null> {
   }
 }
 
-// ❗ Non esiste setMarkdown ufficiale in Crepe — quindi la funzione sotto è *custom*
 // Usiamo una `@ts-ignore` per forzare l'uso interno del context
 export async function setMarkdown(content: string) {
   const editor = editorInstance();

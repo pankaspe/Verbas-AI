@@ -1,3 +1,4 @@
+// utils/loadCurrentHelper.ts
 import { invoke } from "@tauri-apps/api/core";
 import { dirname, join } from "@tauri-apps/api/path";
 import { project } from "../stores/projectStore";
