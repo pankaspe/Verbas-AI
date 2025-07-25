@@ -1,8 +1,4 @@
-Ecco una versione ristrutturata e più professionale del README per **Verbas AI**, che spiega con chiarezza l'obiettivo del progetto, il contesto personale e tecnico, e le funzionalità attuali. Ho mantenuto uno stile accessibile ma tecnico, adatto a lettori sviluppatori, open source enthusiasts o potenziali collaboratori.
 
----
-
-````markdown
 # Verbas AI
 
 ![Verbas Logo](image.png)
@@ -185,4 +181,3 @@ Se vuoi seguire il progetto, contribuire o semplicemente scambiare idee:
 ---
 
 > *“Verbas” deriva da **Verba** (parole), con una **R** e una **S** nel mezzo che è l'estensione dei file di rust(.rs)*
-```
