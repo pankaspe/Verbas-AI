@@ -1,8 +1,11 @@
 use std::fs::{self, File};
-use std::io::{Read, Write};
-use std::path::Path;
+use std::io::{Read, Write, BufWriter};
+use std::path::{Path};
 use serde::{Deserialize, Serialize};
 use chrono::Utc;
+use zip::write::FileOptions;
+use walkdir::WalkDir;
+
 use tauri::command;
 
 /// Represents a chapter in the project, with title and filename.
@@ -81,28 +84,6 @@ Puoi modificarlo liberamente, rinominarlo o aggiungere altri capitoli dalla tua 
     file.write_all(content.as_bytes())
         .map_err(|e| format!("Errore scrittura base.md: {}", e))?;
 
-    Ok(())
-}
-
-/// Recursively copies all files and directories from `src` to `dst`.
-fn copy_dir_all(src: &Path, dst: &Path) -> Result<(), String> {
-    std::fs::create_dir_all(dst)
-        .map_err(|e| format!("Create dir failed: {}", e))?;
-
-    for entry in std::fs::read_dir(src).map_err(|e| format!("Read dir failed: {}", e))? {
-        let entry = entry.map_err(|e| format!("Entry error: {}", e))?;
-        let path = entry.path();
-        let dest_path = dst.join(entry.file_name());
-
-        if path.is_dir() {
-            // Recurse into subdirectories
-            copy_dir_all(&path, &dest_path)?;
-        } else {
-            // Copy file
-            std::fs::copy(&path, &dest_path)
-                .map_err(|e| format!("Copy failed: {}", e))?;
-        }
-    }
     Ok(())
 }
 
@@ -204,34 +185,41 @@ pub fn save_project(path: String, config: ProjectConfig) -> Result<(), String> {
         .map_err(|e| format!("Write error: {}", e))
 }
 
-/// Clones a project folder by copying its contents to a new directory.
+/// Repack a project folder by compress its contents to a new zip.
 ///
-/// # Arguments
-/// * `original_path` - Path to the original `.verbas` project file.
-/// * `new_folder_path` - Target directory where the project will be cloned.
 ///
-/// Returns the path of the new `.verbas` file.
+/// Returns the zip file.
 #[tauri::command]
-pub fn clone_project(original_path: String, new_folder_path: String) -> Result<String, String> {
-    let original = Path::new(&original_path);
-    let new_folder = Path::new(&new_folder_path);
+pub fn repack_project(project_path: String, target_zip_path: String) -> Result<(), String> {
+    let project_file = Path::new(&project_path);
+    let project_dir = project_file.parent().ok_or("Invalid project path")?;
 
-    // Get the parent folder of the original `.verbas` file (project root)
-    let source_folder = original.parent().ok_or("Invalid original path")?;
+    let zip_file = File::create(&target_zip_path)
+        .map_err(|e| format!("Failed to create zip file: {}", e))?;
+    let writer = BufWriter::new(zip_file);
+    let mut zip = zip::ZipWriter::new(writer);
 
-    // Recursively copy all contents to the new folder
-    copy_dir_all(source_folder, new_folder)?;
+    let options: FileOptions<()> = FileOptions::default().compression_method(zip::CompressionMethod::Deflated);
 
-    // Get the original `.verbas` filename (e.g. projectname.verbas)
-    let project_file_name = original.file_name()
-        .ok_or("Invalid original file name")?
-        .to_string_lossy();
+    for entry in WalkDir::new(project_dir) {
+        let entry = entry.map_err(|e| e.to_string())?;
+        let path = entry.path();
+        let name = path.strip_prefix(project_dir).map_err(|e| e.to_string())?;
 
-    // Build the path to the new `.verbas` file in the cloned folder
-    let new_project_path = new_folder.join(&*project_file_name);
+        if path.is_file() {
+            zip.start_file(name.to_string_lossy(), options)
+                .map_err(|e| e.to_string())?;
 
-    // Return the new project file path as a string
-    Ok(new_project_path.to_string_lossy().to_string())
+            let mut f = File::open(path).map_err(|e| e.to_string())?;
+            std::io::copy(&mut f, &mut zip).map_err(|e| e.to_string())?;
+        } else if name.as_os_str().len() != 0 {
+            zip.add_directory(name.to_string_lossy(), options)
+                .map_err(|e| e.to_string())?;
+        }
+    }
+
+    zip.finish().map_err(|e| e.to_string())?;
+    Ok(())
 }
 
 /// Deletes a project file given its path.

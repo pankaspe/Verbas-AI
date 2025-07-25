@@ -9,7 +9,7 @@ function App() {
   return (
         <>
           <TitleBar />
-          <div class="conteiner py-4">
+          <div class="conteiner py-4">            
             <MainContent />
           </div>
         </>
