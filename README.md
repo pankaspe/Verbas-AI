@@ -1,6 +1,6 @@
 # Verbas AI
 
-![Light theme](image-light.png)
+![alt text](image.png)
 
 **Verbas AI** è un editor Markdown avanzato per la scrittura di **libri**, **guide**, **articoli** o **appunti**, progettato per offrire un'esperienza **moderna**, **reattiva** e **performante**.  
 È sviluppato in **Rust** e **SolidJS**, con focus su velocità, chiarezza strutturale e architettura scalabile.
