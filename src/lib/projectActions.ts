@@ -76,10 +76,10 @@ export async function handleSave(): Promise<void> {
 
   try {
     const markdownContent = await getMarkdown();
-    console.log('Markdown content to save:', markdownContent);
+    // console.log('Markdown content to save:', markdownContent);
 
     if (!markdownContent) {
-      console.warn('Markdown content is empty or editor not ready.');
+      // console.warn('Markdown content is empty or editor not ready.');
       return;
     }
 

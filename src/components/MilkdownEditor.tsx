@@ -2,9 +2,9 @@
 import { onCleanup, createEffect } from "solid-js";
 import { Crepe } from "@milkdown/crepe";
 import { setEditorInstance, setIsEditorReady } from "../stores/editorStore";
+import { theme } from "../stores/themeStore";
 
 import "@milkdown/crepe/theme/common/style.css";
-import "../styles/milkdown-teme.css";
 
 type MilkdownEditorProps = { initialValue: string };
 
@@ -12,10 +12,30 @@ export default function MilkdownEditor(props: MilkdownEditorProps) {
   let containerRef!: HTMLDivElement;
   let crepeInstance: Crepe | null = null;
 
+  let styleLink: HTMLLinkElement | null = null;
+
+  function loadThemeCSS(themeName: string) {
+    // Pulisce eventuale CSS precedente
+    if (styleLink) {
+      styleLink.remove();
+      styleLink = null;
+    }
+
+    // Crea il nuovo link al file CSS
+    styleLink = document.createElement("link");
+    styleLink.rel = "stylesheet";
+    styleLink.type = "text/css";
+    styleLink.href = `/styles/milkdown-teme-${themeName}.css`; // usa il nome del tema
+
+    document.head.appendChild(styleLink);
+  }
+
   createEffect(() => {
-    // Se c'è un'istanza vecchia, la distruggo
+    // Cambia CSS quando cambia il tema
+    loadThemeCSS(theme());
+
     if (crepeInstance) {
-      crepeInstance.destroy();  // distrugge editor e pulisce DOM
+      crepeInstance.destroy();
       crepeInstance = null;
     }
 
@@ -25,16 +45,18 @@ export default function MilkdownEditor(props: MilkdownEditorProps) {
     });
 
     crepeInstance.create().then(() => {
-      setEditorInstance(crepeInstance!)
+      setEditorInstance(crepeInstance!);
       setIsEditorReady(true);
     });
   });
 
-  // Quando il componente si smonta, distruggo l'istanza
   onCleanup(() => {
     if (crepeInstance) {
       crepeInstance.destroy();
       crepeInstance = null;
+    }
+    if (styleLink) {
+      styleLink.remove();
     }
   });
 
