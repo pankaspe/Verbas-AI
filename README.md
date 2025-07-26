@@ -17,7 +17,6 @@ Il codice è open source e aperto a idee, feedback o future collaborazioni.
 
 ---
 
----
 ## ⚙️ Perché Rust e SolidJS?
 
 * **Rust** garantisce **performance elevate** e **sicurezza della memoria**, fondamentali per un'app desktop che deve essere stabile e veloce, soprattutto nella gestione di file di grandi dimensioni e operazioni complesse.
