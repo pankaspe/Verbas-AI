@@ -23,8 +23,8 @@
   --crepe-color-error: oklch(60.61% 0.12 15.341);                /* error */
 
   /* Interactive Colors */
-  --crepe-color-hover: oklch(45.229% 0.035 264.131);             /* neutral */
-  --crepe-color-selected: oklch(45.229% 0.035 264.131);          /* neutral */
+  --crepe-color-hover: oklch(89.925% 0.016 262.749);             /* neutral */
+  --crepe-color-selected: oklch(89.925% 0.016 262.749);          /* neutral */
   --crepe-color-inline-area: oklch(11.887% 0.015 254.027);       /* base-300 */
 
   /* Fonts */
