@@ -2,3 +2,15 @@
 @plugin "daisyui" {
   themes: all;
 }
+
+html,
+body {
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Override Milkdown layout */
+.milkdown .editor {
+  max-width: 100% !important;
+  caret-color: black!important;
+}

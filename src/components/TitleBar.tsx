@@ -1,6 +1,5 @@
 import { createSignal, onMount, onCleanup } from "solid-js";
 import { getCurrentWindow } from "@tauri-apps/api/window";
-import { ThemeSwitcher } from "./ThemeSwitcher";
 import {
   handleNewProject,
   handleOpenProject,
@@ -116,7 +115,6 @@ export function TitleBar() {
         <DropdownMenu label="Settings">
           <li><a>AI models</a></li>
           <hr class="border-t-1 border-base-100 my-2" />
-          <ThemeSwitcher />
           <li><a>Preferences</a></li>
           <li><a>Account</a></li>
         </DropdownMenu>
