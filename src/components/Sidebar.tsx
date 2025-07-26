@@ -1,104 +1,78 @@
+// components/Sidebar.tsx
+import { 
+  openPanel,
+  setOpenPanel,
+} from "../stores/sidebarStore";
+
 export function Sidebar() {
   return (
-    <ul class="menu bg-base-200 rounded-box w-56 p-2 text-sm">
-      
-      {/* Database Connections */}
-      <li>
-        <h2 class="menu-title">Database</h2>
-        <ul>
-          <li>
-            <a>
-              {/* Icona: Connection */}
-              <svg xmlns="http://www.w3.org/2000/svg" class="size-4 me-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M21 12c0 4.418-4.03 8-9 8s-9-3.582-9-8 4.03-8 9-8 9 3.582 9 8Z" />
-              </svg>
-              Connections
-            </a>
-          </li>
-          <li>
-            <a>
-              {/* Icona: Tables & Views */}
-              <svg xmlns="http://www.w3.org/2000/svg" class="size-4 me-2" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M3 6.75A2.25 2.25 0 015.25 4.5h13.5A2.25 2.25 0 0121 6.75v1.5A2.25 2.25 0 0118.75 10.5H5.25A2.25 2.25 0 013 8.25v-1.5zM3 13.5A2.25 2.25 0 015.25 11.25h13.5A2.25 2.25 0 0121 13.5v1.5a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15v-1.5z" />
-              </svg>
-              Tables & Views
-            </a>
-          </li>
-          <li>
-            <a>
-              {/* Icona: AI Inspector */}
-              <svg xmlns="http://www.w3.org/2000/svg" class="size-4 me-2" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M15 15l3.536 3.536M21 21l-3.536-3.536M12 5.25c3.866 0 7 2.91 7 6.5s-3.134 6.5-7 6.5-7-2.91-7-6.5 3.134-6.5 7-6.5Z" />
-              </svg>
-              AI Inspector
-            </a>
-          </li>
-        </ul>
-      </li>
-
-
-      {/* Query Tools */}
-      <li>
-        <h2 class="menu-title">Query</h2>
-        <ul>
-          <li>
-            <a>
-              <svg xmlns="http://www.w3.org/2000/svg" class="size-4 me-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
-              </svg>
-              Query Editor
-            </a>
-          </li>
-          <li>
-            <a>
-              <svg xmlns="http://www.w3.org/2000/svg" class="size-4 me-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M3 14h18" />
-              </svg>
-              Results
-            </a>
-          </li>
-        </ul>
-      </li>
-
-      {/* Import & Plugins */}
-      <li>
-        <h2 class="menu-title">Tools</h2>
-        <ul>
-          <li>
-            <a>
-              <svg xmlns="http://www.w3.org/2000/svg" class="size-4 me-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
-              </svg>
-              Import Data
-            </a>
-          </li>
-          <li>
-            <a>
-              <svg xmlns="http://www.w3.org/2000/svg" class="size-4 me-2" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M9 17v2a1 1 0 001 1h4a1 1 0 001-1v-2M12 12v5m8-7a8 8 0 11-16 0 8 8 0 0116 0z" />
-              </svg>
-              Export As
-            </a>
-          </li>
-          <li>
-            <a>
-              <svg xmlns="http://www.w3.org/2000/svg" class="size-4 me-2" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 3v2.25M12.75 3v2.25M9 7.5h6m-6 3h6m-6 3h4.5m-4.5 3h6m-6 3h6M3.75 7.5h.008v.008H3.75V7.5zM3.75 10.5h.008v.008H3.75V10.5zM3.75 13.5h.008v.008H3.75V13.5zM3.75 16.5h.008v.008H3.75V16.5zM3.75 19.5h.008v.008H3.75V19.5z" />
-              </svg>
-              Analytics
-            </a>
-          </li>
-          <li>
-            <a>
-              <svg xmlns="http://www.w3.org/2000/svg" class="size-4 me-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 4.5L12 3l2.25 1.5v3l2.25 1.5v3l2.25 1.5v3L12 21l-6.75-4.5v-3l2.25-1.5v-3l2.25-1.5v-3z" />
-              </svg>
-              Plugins
-            </a>
-          </li>
-        </ul>
-      </li>
-
-    </ul>
+    <div class="mt-8">
+      <ul class="menu h-full p-2">
+        <li>
+          <a
+            class={`tooltip tooltip-right ${
+              openPanel() === "file" ? "bg-base-300" : ""
+            }`}
+            data-tip="File Browser"
+            onClick={() =>
+              setOpenPanel(openPanel() === "file" ? null : "file")
+            }
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-5 w-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+            </svg>
+          </a>
+        </li>
+        <li>
+          <a
+            class={`tooltip tooltip-right ${
+              openPanel() === "chat" ? "bg-base-300" : ""
+            }`}
+            data-tip="Chat"
+            onClick={() =>
+              setOpenPanel(openPanel() === "chat" ? null : "chat")
+            }
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-5 w-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </a>
+        </li>
+        <li>
+          <a class="tooltip tooltip-right" data-tip="Stats">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-5 w-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+            </svg>
+          </a>
+        </li>
+      </ul>
+    </div>
   );
 }

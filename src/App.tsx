@@ -14,7 +14,7 @@ function App() {
   return (
         <>
           <TitleBar />
-          <div class="conteiner py-4">            
+          <div class="min-h-screen flex">            
             <MainContent />
           </div>
         </>
