@@ -4,7 +4,7 @@ import { Crepe } from "@milkdown/crepe";
 import { setEditorInstance, setIsEditorReady } from "../stores/editorStore";
 import { theme } from "../stores/themeStore";
 
-import "@milkdown/crepe/theme/common/style.css";
+import "@milkdown/crepe/theme/common/style.css"; // solo il comune, sempre
 
 type MilkdownEditorProps = { initialValue: string };
 
@@ -12,27 +12,32 @@ export default function MilkdownEditor(props: MilkdownEditorProps) {
   let containerRef!: HTMLDivElement;
   let crepeInstance: Crepe | null = null;
 
-  let styleLink: HTMLLinkElement | null = null;
+  // Mantieni riferimento all'ultimo link caricato
+  let currentThemeLink: HTMLLinkElement | null = null;
 
+  // Carica dinamicamente il CSS del tema
   function loadThemeCSS(themeName: string) {
-    // Pulisce eventuale CSS precedente
-    if (styleLink) {
-      styleLink.remove();
-      styleLink = null;
-    }
+    const newLink = document.createElement("link");
+    newLink.rel = "stylesheet";
+    newLink.type = "text/css";
+    newLink.href = `/styles/milkdown-teme-${themeName}.css`;
+    newLink.dataset.milkdownTheme = themeName;
 
-    // Crea il nuovo link al file CSS
-    styleLink = document.createElement("link");
-    styleLink.rel = "stylesheet";
-    styleLink.type = "text/css";
-    styleLink.href = `/styles/milkdown-teme-${themeName}.css`; // usa il nome del tema
+    newLink.onload = () => {
+      // Quando il nuovo tema è pronto, rimuovi il vecchio
+      if (currentThemeLink) {
+        currentThemeLink.remove();
+      }
+      currentThemeLink = newLink;
+    };
 
-    document.head.appendChild(styleLink);
+    // Aggiungi subito il nuovo (ma senza rimuovere il vecchio per ora)
+    document.head.appendChild(newLink);
   }
 
   createEffect(() => {
-    // Cambia CSS quando cambia il tema
-    loadThemeCSS(theme());
+    const selectedTheme = theme();
+    loadThemeCSS(selectedTheme);
 
     if (crepeInstance) {
       crepeInstance.destroy();
@@ -55,8 +60,8 @@ export default function MilkdownEditor(props: MilkdownEditorProps) {
       crepeInstance.destroy();
       crepeInstance = null;
     }
-    if (styleLink) {
-      styleLink.remove();
+    if (currentThemeLink) {
+      currentThemeLink.remove();
     }
   });
 
